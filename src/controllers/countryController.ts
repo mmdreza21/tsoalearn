@@ -5,6 +5,7 @@ import { countryCreationRequest } from "../models/country/countryCreationRequest
 import { Pagination } from "../models/pagination/utils/Pagination";
 import { PaginationFilter } from "../models/pagination/utils/PaginationFilter";
 import { Validation } from "../models/country/CountryModel";
+
 import {
   Route,
   Tags,
@@ -16,9 +17,10 @@ import {
   Path,
   Res,
   TsoaResponse,
+  Delete,
 } from "tsoa";
 
-import { validation } from "../middlewares/objectId";
+import { objectId } from "../utils/objectId";
 
 @Route("country")
 @Tags("country")
@@ -26,7 +28,7 @@ export class CountryController extends Controller {
   @Inject
   private countryService!: countryService;
 
-  @Post()
+  @Post("/")
   async create(
     @Body() requestBody: countryCreationRequest,
     @Res() badResponse: TsoaResponse<400, { reason: string }>
@@ -39,10 +41,10 @@ export class CountryController extends Controller {
 
   @Get()
   async getCountries(
-    @Query() page: number,
-    @Query() limit: number
+    @Query() page?: number,
+    @Query() limit?: number
   ): Promise<any> {
-    let pagination = new PaginationFilter(page, limit);
+    let pagination = new PaginationFilter(page || 1, limit || 10);
     const countries = await this.countryService.findAll();
 
     return Pagination.pagination<Country>(countries, pagination);
@@ -50,14 +52,25 @@ export class CountryController extends Controller {
   @Get("{id}")
   async getOne(
     @Path() id: string,
-    @Res() notFound: TsoaResponse<404, { reason: string }>,
-    @Res() objectId: TsoaResponse<404, { reason: string }>
+    @Res() notFound: TsoaResponse<404, { reason: string }>
   ): Promise<(ICountry & { _id: any }) | null> {
-    //  @validation(id)
-    objectId;
+    const validOId = objectId(id);
     const country = await this.countryService.findOne(id);
+    if (!country || validOId)
+      return notFound(404, { reason: "country whit givin ID not found" });
+    return country;
+  }
+  @Delete("/{id}")
+  async delete(
+    @Path() id: string,
+    @Res() notFound: TsoaResponse<404, { reason: string }>
+  ): Promise<ICountry> {
+    const validOId = objectId(id);
+    if (!validOId)
+      return notFound(404, { reason: "country whit givin ID not found" });
+    const country = await this.countryService.removeOne(id);
     if (!country)
-      return notFound(404, { reason: "country whit givin ID npt fund" });
+      return notFound(404, { reason: "country whit givin ID not found" });
     return country;
   }
 }

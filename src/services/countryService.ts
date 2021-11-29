@@ -5,7 +5,7 @@ import { countryCreationRequest } from "../models/country/countryCreationRequest
 
 @Singleton
 export class countryService {
-  async findAll(): Promise<(ICountry & { _id: any })[]> {
+  async findAll(): Promise<ICountry[]> {
     return await CountryModel.find();
   }
 
@@ -17,7 +17,11 @@ export class countryService {
     return country;
   }
 
-  async findOne(id: string): Promise<(ICountry & { _id: any }) | null> {
+  async findOne(id: string): Promise<ICountry | null> {
     return await CountryModel.findById(id);
+  }
+
+  async removeOne(id: string): Promise<ICountry | null> {
+    return await CountryModel.findByIdAndRemove(id);
   }
 }
