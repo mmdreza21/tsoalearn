@@ -75,7 +75,7 @@
 							}
 						}
 					},
-					"404": {
+					"400": {
 						"description": "",
 						"content": {
 							"application/json": {
@@ -143,6 +143,69 @@
 						"schema": {
 							"format": "double",
 							"type": "number"
+						}
+					}
+				]
+			}
+		},
+		"/country/{id}": {
+			"get": {
+				"operationId": "GetOne",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {
+									"allOf": [
+										{
+											"$ref": "#/components/schemas/ICountry"
+										},
+										{
+											"properties": {
+												"_id": {}
+											},
+											"required": [
+												"_id"
+											],
+											"type": "object"
+										}
+									],
+									"nullable": true
+								}
+							}
+						}
+					},
+					"404": {
+						"description": "",
+						"content": {
+							"application/json": {
+								"schema": {
+									"properties": {
+										"reason": {
+											"type": "string"
+										}
+									},
+									"required": [
+										"reason"
+									],
+									"type": "object"
+								}
+							}
+						}
+					}
+				},
+				"tags": [
+					"country"
+				],
+				"security": [],
+				"parameters": [
+					{
+						"in": "path",
+						"name": "id",
+						"required": true,
+						"schema": {
+							"type": "string"
 						}
 					}
 				]

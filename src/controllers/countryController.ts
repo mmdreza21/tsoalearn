@@ -1,5 +1,10 @@
 import { Country, ICountry } from "../models/country/ICountry";
 import { countryService } from "../services/countryService";
+import { Inject } from "typescript-ioc";
+import { countryCreationRequest } from "../models/country/countryCreationRequest";
+import { Pagination } from "../models/pagination/utils/Pagination";
+import { PaginationFilter } from "../models/pagination/utils/PaginationFilter";
+import { Validation } from "../models/country/CountryModel";
 import {
   Route,
   Tags,
@@ -8,15 +13,12 @@ import {
   Post,
   Body,
   Query,
+  Path,
   Res,
   TsoaResponse,
 } from "tsoa";
-import { Inject } from "typescript-ioc";
-import { countryCreationRequest } from "../models/country/countryCreationRequest";
-// import { PaginationModel } from "../models/pagination/utils/PaginationModel";
-import { Pagination } from "../models/pagination/utils/Pagination";
-import { PaginationFilter } from "../models/pagination/utils/PaginationFilter";
-import { Validation } from "../models/country/CountryModel";
+
+import { validation } from "../middlewares/objectId";
 
 @Route("country")
 @Tags("country")
@@ -27,10 +29,10 @@ export class CountryController extends Controller {
   @Post()
   async create(
     @Body() requestBody: countryCreationRequest,
-    @Res() badResponse: TsoaResponse<404, { reason: string }>
+    @Res() badResponse: TsoaResponse<400, { reason: string }>
   ): Promise<ICountry> {
     const { error } = Validation(requestBody);
-    if (error) badResponse(404, { reason: error.details[0].message });
+    if (error) badResponse(400, { reason: error.details[0].message });
 
     return await this.countryService.create(requestBody);
   }
@@ -44,5 +46,18 @@ export class CountryController extends Controller {
     const countries = await this.countryService.findAll();
 
     return Pagination.pagination<Country>(countries, pagination);
+  }
+  @Get("{id}")
+  async getOne(
+    @Path() id: string,
+    @Res() notFound: TsoaResponse<404, { reason: string }>,
+    @Res() objectId: TsoaResponse<404, { reason: string }>
+  ): Promise<(ICountry & { _id: any }) | null> {
+    //  @validation(id)
+    objectId;
+    const country = await this.countryService.findOne(id);
+    if (!country)
+      return notFound(404, { reason: "country whit givin ID npt fund" });
+    return country;
   }
 }
