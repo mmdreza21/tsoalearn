@@ -1,7 +1,6 @@
 import { app } from "./app";
 
 import { StartupDb } from "./utils/startUp/db";
-// import swaggerUi from "swagger-ui-express";
 
 import logger, { WinstonLogger } from "./utils/logger";
 

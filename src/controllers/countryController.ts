@@ -18,9 +18,11 @@ import {
   Res,
   TsoaResponse,
   Delete,
+  // Security,
 } from "tsoa";
 
 import { objectId } from "../utils/objectId";
+// import { expressAuthentication } from "src/middlewares/authentication";
 
 @Route("country")
 @Tags("country")
@@ -39,6 +41,7 @@ export class CountryController extends Controller {
     return await this.countryService.create(requestBody);
   }
 
+  // @Security("expressAuthentication")
   @Get()
   async getCountries(
     @Query() page?: number,
